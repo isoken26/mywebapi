@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>TODOリスト</title>
+    <style>
+        html {
+            background-color: rgb(240, 240, 240);
+        }
+    </style>
+</head>
+<body>
+    <h1>TODO List</h1>
+    <div>
+        <ul id="todo-container"></ul>
+        <input id="new-todo-item-title"><button id="new-todo-item-add-button">Add</Address></button>
+    </div>
+
+    <script>
+        
+        const querySelector = selector => document.querySelector(selector);
+
+        // TODOリストを描画する関数
+        const renderTodoList = todoList => {
+            // todo-container要素を取得する
+            const todoContainer = document.querySelector('#todo-container');
+
+            // コンテナの中身を全部消す
+            todoContainer.innerHTML = '';
+
+            // 指定したタグ名からHTML要素を生成する
+            const createElement = tag => document.createElement(tag);
+
+            // JSONの各要素に対して
+            for (const item of todoList) {
+                const li = createElement('li');         // リスト要素
+                const label = createElement('label');   // ラベル
+                const checkbox = createElement('input');// チェックボックス
+
+                checkbox.type = 'checkbox';
+                checkbox.checked = item.done;
+                
+                const text = new Text(item.title);
+
+                // ラベルにチェックボックスとテキストを追加する
+                label.appendChild(checkbox);
+                label.appendChild(text);
+
+                // リスト要素に先ほどのラベルを追加する
+                li.appendChild(label);
+
+                // TODOリストにリスト要素を追加する
+                todoContainer.appendChild(li);
+            }
+        }
+
+        // APIからTODOリストを取得して描画する関数
+        const fetchTodoList = async () => {
+
+            // APIからJSONを取得する
+            return fetch('./api/v1/list')
+                .then(res => res.json())
+                .then(todoList => renderTodoList(todoList));
+        }
+
+        // APIに新しいTODOアイテムをPOSTする関数
+        const postNewTodoItem = async todoItem => {
+
+            // 送信データ'title'にタイトルテキストをついかする
+            const body = new FormData();
+            body.append('title', todoItem.title);
+
+            // Fetch APIを使って、Web　APIにPOSTでデータを送信する
+            return fetch('./api/v1/add', {
+                method: 'POST', //POSTメソッドで送信する
+                body
+            }).then(response => response.json);
+        }
+
+        const newTodoItemTitleInput = querySelector('#new-todo-item-title');
+        const newTodoAddButton = querySelector('#new-todo-item-add-button');
+
+        // Addボタンをクリックした時に新しいTODO項目をPOSTする
+        newTodoAddButton.addEventListener('click', event => {
+        const title = newTodoItemTitleInput.value;
+
+        // タイトルが空でないとき
+        if(title) postNewTodoItem({title}).then(item => fetchTodoList());
+        });
+
+        // 初回データ読み込み
+        fetchTodoList();
+    </script>
+</body>
+</html>
