@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>TODOリスト</title>
+    <style>
+        html {
+            background-color: rgb(240, 240, 240);
+        }
+    </style>
+</head>
+<body>
+    <h1>TODO List</h1>
+    <div>
+        <ul id="todo-container"></ul>
+    </div>
+    
+    <script>
+        // APIからJSONを取得する
+        fetch('./api/v1/list')
+        .then(response => response.json())
+        .then(todoList => {
+
+            // id="todo-container"要素を取得する
+            const todoContainer = document.querySelector('#todo-container');
+
+            // コンテナの中身を消去
+            todoContainer.innerHTML = '';
+
+            // JSONの各要素に対して処理をする
+            for(const item of todoList) {
+
+                // リスト
+                const li = document.createElement('li');
+                // ラベル
+                const label = document.createElement('label');
+                // チェックボックス
+                const checkbox = document.createElement('input');
+
+                checkbox.type = 'checkbox';
+                checkbox.checked = item.done;
+
+                const text = new Text(item.title);
+
+                //ラベルにチェックボックスとテキストを追加する
+                label.appendChild(checkbox);
+                label.appendChild(text);
+
+                // リスト要素に先ほどのラベルを追加する
+                li.appendChild(label);
+
+                // TODOリストに要素を追加する
+                todoContainer.appendChild(li);
+            }
+        });
+    </script>
+</body>
+</html>
